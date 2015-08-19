@@ -151,7 +151,7 @@ public class MyPerfConfiguration implements java.io.Serializable{
 				this.setMetricsDbPort(Integer.parseInt(props.getProperty("metricsDbPort", "3306")));
 				this.metricsDbName = props.getProperty("metricsDbName", this.metricsDbName);
 				this.setMetricsDbUserName(props.getProperty("metricsDbUserName"));
-				this.setMetricsDbPassword(ctx.getMetaDb().dec(props.getProperty("metricsDbPassword")));
+				this.setMetricsDbPassword(props.getProperty("metricsDbPassword"));
 			}
 			return true;
 		}catch(Exception ex)
@@ -195,7 +195,7 @@ public class MyPerfConfiguration implements java.io.Serializable{
 			if(this.metricsDbUserName!=null && !this.metricsDbUserName.isEmpty())
 				pw.println("metricsDbUserName="+ this.metricsDbUserName);
 			if(this.metricsDbPassword!=null && !this.metricsDbPassword.isEmpty())
-				pw.println("metricsDbPassword="+ ctx.getMetaDb().enc(this.metricsDbPassword));
+			    pw.println("metricsDbPassword="+ this.metricsDbPassword);
 			return true;
 		}catch(Exception ex)
 		{
