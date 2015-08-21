@@ -68,6 +68,9 @@ public class MyPerfConfiguration implements java.io.Serializable{
 	private String metricsDbUserName;
 	private String metricsDbPassword;
 
+	private String readOnlyDBUser;
+	private String readOnlyDBPassword;
+	
 	//If the app is just installed, it might not have been configured
 	private boolean configured = false;
 	
@@ -152,6 +155,8 @@ public class MyPerfConfiguration implements java.io.Serializable{
 				this.metricsDbName = props.getProperty("metricsDbName", this.metricsDbName);
 				this.setMetricsDbUserName(props.getProperty("metricsDbUserName"));
 				this.setMetricsDbPassword(props.getProperty("metricsDbPassword"));
+				this.setReadOnlyDBUser(props.getProperty("readOnlyDbUser"));
+				this.setReadOnlyDBPassword(props.getProperty("readOnlyDbPassword"));
 			}
 			return true;
 		}catch(Exception ex)
@@ -342,6 +347,26 @@ public class MyPerfConfiguration implements java.io.Serializable{
 
 	public void setReuseMonUserConnction(boolean reuseMonUserConnction) {
 		this.reuseMonUserConnction = reuseMonUserConnction;
+	}
+
+	public String getReadOnlyDBUser()
+	{
+		return readOnlyDBUser;
+	}
+
+	public void setReadOnlyDBUser(String readOnlyDBUser)
+	{
+		this.readOnlyDBUser = readOnlyDBUser;
+	}
+
+	public String getReadOnlyDBPassword()
+	{
+		return readOnlyDBPassword;
+	}
+
+	public void setReadOnlyDBPassword(String readOnlyDBPassword)
+	{
+		this.readOnlyDBPassword = readOnlyDBPassword;
 	}
 
 }

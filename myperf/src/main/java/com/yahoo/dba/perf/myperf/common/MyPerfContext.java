@@ -120,7 +120,8 @@ public class MyPerfContext implements java.io.Serializable, InitializingBean,Dis
   /**
    * All the top level beans, sql manager, connection manage, db manager, etc, will be initialized here.
    */
-  public void afterPropertiesSet() throws Exception 
+  @Override
+public void afterPropertiesSet() throws Exception 
   {
     configureLogging();
 	Logger logger = Logger.getLogger(this.getClass().getName());		
@@ -161,13 +162,15 @@ public class MyPerfContext implements java.io.Serializable, InitializingBean,Dis
 	
 	this.dbInfoManager.setMetaDb(metaDb);//since we store db info now in metricsdb, 
 	        //it can only be initialized after metricsDB initialized 
-	
+
 	this.userManager.setMetaDb(metaDb);
 	this.auth.setContext(this);	
 	this.queryEngine.setSqlManager(this.sqlManager);
 	this.queryEngine.setFrameworkContext(this);
     this.statDefManager.init();
-    
+
+
+
 	logger.info("Initialize AutoScanner ...");
 	this.myperfConfig.init(this);
 	this.snmpSettings.init(this);
@@ -182,16 +185,39 @@ public class MyPerfContext implements java.io.Serializable, InitializingBean,Dis
     	this.metricDb.loadAlertSetting(this.alertSettings);//load alert setting after DB info is loaded.
 	  }
 	}
+
+	for (Map.Entry<String, DBGroupInfo> e : getDbInfoManager().getClusters().entrySet())
+	{
+		for (DBInstanceInfo dbinfo : e.getValue().getInstances())
+		{
+			dbinfo.setConnectionVerified(true);
+			this.getInstanceStatesManager().addInstanceStates(dbinfo.getDbid());
+			DBCredential cred = new DBCredential();
+			AppUser user = getUserManager().getUser(MetaDB.DEFAULT_USER);
+			cred.setAppUser(user.getName());
+			cred.setDbGroupName(dbinfo.getDbGroupName());
+			cred.setUsername(myperfConfig.getReadOnlyDBUser());
+			cred.setPassword(myperfConfig.getReadOnlyDBPassword());
+			logger.severe("adding dbinfo:" + dbinfo);
+
+			this.getMetaDb().upsertDBCredential(cred);
+			this.getDbInfoManager().getMyDatabases(cred.getAppUser(), false).addDb(cred.getDbGroupName());
+			this.saveManagedDBCredentialForScanner(cred.getUsername(), cred.getDbGroupName(), cred.getUsername(), cred.getPassword());
+		}
+	}
+
     this.instanceStatesManager.init(this);
-		
+
 	autoScanner = new AutoScanner(this);
 	autoScanner.init();//it will update metricsDB
 	if(autoScanner.isInitialized())
 	{
-	  logger.info("Starting AutoScanner ...");
+	  logger.severe("Starting AutoScanner ...");
 	  autoScanner.start();
+    }else{
+    	logger.severe("Did not start autoscanner");
     }
-	
+
 	logger.info("Done setup afterPropertiesSet.");
   }
 
@@ -210,7 +236,8 @@ public class MyPerfContext implements java.io.Serializable, InitializingBean,Dis
     return metaDb;
   }
 
-  public void destroy() throws Exception 
+  @Override
+public void destroy() throws Exception 
   {
     if(this.autoScanner!=null)this.autoScanner.stop();
     if(this.metricDb != null)this.metricDb.destroy();

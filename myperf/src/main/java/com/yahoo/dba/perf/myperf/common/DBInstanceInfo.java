@@ -247,10 +247,10 @@ public class DBInstanceInfo implements java.io.Serializable{
   @Override
   public String toString() 
   {
-    return "["+this.dbGroupName+","+this.hostName+","+this.dbid+","+this.instance+","
-              +this.port+","+this.databaseName+", ssh: "+this.useTunneling+","
-    		  +this.localHostName+","+this.localPort+",virtual:"+this.virtualHost
-    		  +","+this.username+"]";
+    return "[group="+this.dbGroupName+",hostname="+this.hostName+",dbid="+this.dbid+",instance="+this.instance+",port="
+              +this.port+",dbName="+this.databaseName+", tunneling: "+this.useTunneling+",localHostName="
+    		  +this.localHostName+",localPort="+this.localPort+",virtual:"+this.virtualHost
+    		  +",user="+this.username+",pw="+(password!=null?password.replaceAll(".*", "*"):password)+",owner="+this.owner+"]";
   }
 
   public boolean isTestConnection() 
